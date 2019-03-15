@@ -29,7 +29,7 @@ int main(){
     pid_t pid, sid;
 
     //char *touch_refresh[] = {"touch", "haha.txt", NULL};
-    
+
     pid = fork();
 
     if (pid < 0) {
@@ -48,7 +48,7 @@ int main(){
         exit(EXIT_FAILURE);
     }
 
-    if ((chdir("/home/catehulu/Documents/makanan/")) < 0) {
+    if ((chdir("/home/johnforjc/Documents/makanan/")) < 0) {
         exit(EXIT_FAILURE);
     }
 
@@ -58,7 +58,7 @@ int main(){
 
     refresh_time();
     while(1){
-       
+
         //FILE *pointer=popen("stat -c %x makan_enak.txt", "r");
 
         int minute_now, minute_last_seen, hour_now, hour_last_seen, second_now, second_last_seen;
@@ -79,29 +79,29 @@ int main(){
 
         t1 = time(NULL);
         t2 = check.st_atime;
-        
-        timeptr = localtime(&t1);
 
-        hour_now = timeptr->tm_hour;
-        minute_now = timeptr->tm_min;
-        second_now = timeptr->tm_sec;
+//        timeptr = localtime(&t1);
 
-        timeptr = localtime(&t2);
+//        hour_now = timeptr->tm_hour;
+//        minute_now = timeptr->tm_min;
+//        second_now = timeptr->tm_sec;
 
-        hour_last_seen = timeptr->tm_hour;
-        minute_last_seen = timeptr->tm_min;
-        second_last_seen = timeptr->tm_sec;
+//        timeptr = localtime(&t2);
 
-        if(hour_last_seen==0) hour_last_seen=24;
-        if(hour_now==0) hour_now=24;
+//        hour_last_seen = timeptr->tm_hour;
+//        minute_last_seen = timeptr->tm_min;
+//        second_last_seen = timeptr->tm_sec;
+
+//        if(hour_last_seen==0) hour_last_seen=24;
+//        if(hour_now==0) hour_now=24;
         // printf("last seen %d:%d:%d\n",hour_last_seen,minute_last_seen,second_last_seen);
         // printf("now %d:%d:%d\n",hour_now,minute_now,second_now);
-        to_second_last_seen=3600*hour_last_seen+60*minute_last_seen+second_last_seen;
-        to_second_now=3600*hour_now+60*minute_now+second_now;
+//        to_second_last_seen=3600*hour_last_seen+60*minute_last_seen+second_last_seen;
+//        to_second_now=3600*hour_now+60*minute_now+second_now;
         // printf("last %d now %d\n",to_second_last_seen,to_second_now);
-        difference = to_second_now - to_second_last_seen;
+//        difference = to_second_now - to_second_last_seen;
 
-        if(difference<=30 && difference>=0){
+        if((int)difftime(t1, t2)<=30){
             //printf("difference %d\n",difference);
             pid_t process_touch;
             process_touch = fork();
