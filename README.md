@@ -72,33 +72,31 @@ permissionnya dirubah dengan chmod, tetapi agar permission dapat diganti maka fi
 
 Karena dicek setiap 3 detik, maka didaemon disleep selama 3 detik
 
-### NOMOR 4
+# NOMOR 4
 
 Untuk nomor 4, penyelesaian masalah ini adalah mengatur waktu akses terakhir, lalu mengecek apakah dalam 30 detik sebelumnya file tersebut terbuka atau tidak.
 
-.... Bagian diatas time_t
+```
+struct stat check;
+if (stat("makan_enak.txt", &check) == -1) {
+    printf("salah!");
+}
 
-Selanjutnya setelah diketahui waktu akses terakhir maka kita perlu mengetahui jam, menit, detik, hari dalam setahun dan juga tahun dari file terakhir dibuka dan juga waktu program berjalan. Pengecekan dilakukan dengan cara memasukkan setiap komponen yang disebutkan kedalam beberapa variabel. Lalu pengecekan dimulai dengan cara mengkonversi semua jam, menit dan detik menjadi ke detik, setelah itu dilakukan pengecekan apakah waktu sekarang dikurangi waktu terakhir dilihat(dalam detik semua) kurang dari sama dengan 30. Jika ya, buat proses untuk mengeksekusi proses yang digunakan untuk membuat file.
+time_t t1;
+time_t t2;
+struct tm *timeptr;
+
+t1 = time(NULL);
+t2 = check.st_atime;
+```
+
+Penyelesaian pertama adalah mengecek status dari file makan_enak.txt. Untuk penyelesaian ini menggunakan struct stat check, dimana struct ini terdapat status dari file yang akan dicek yaitu makan_enak.txt. Lalu panggil perintah stat("makan_enak.txt", &check) sehingga semua status file makan enak akan masuk kedalam struct. Lalu pembuatan variabel time dimana t1 adalah waktu sekarang sedangkan t2 adalah waktu yang dikonversi dari check yang diambil access timenya(atime).
 
 ```
-timeptr = localtime(&t1);
-
-hour_now = timeptr->tm_hour;
-minute_now = timeptr->tm_min;
-second_now = timeptr->tm_sec;
-
-timeptr = localtime(&t2);
-
-hour_last_seen = timeptr->tm_hour;
-minute_last_seen = timeptr->tm_min;
-second_last_seen = timeptr->tm_sec;
-
-if(hour_last_seen==0) hour_last_seen=24;
-if(hour_now==0) hour_now=24;
-to_second_last_seen=3600*hour_last_seen+60*minute_last_seen+second_last_seen;
-to_second_now=3600*hour_now+60*minute_now+second_now;
-difference = to_second_now - to_second_last_seen;
+if((int)difftime(t1, t2)<=30)
 ```
+
+Potongan codingan diatas merupakan fungsi yang mereturnkan selisih dari 2 range waktu. Secara default, difftime mereturnkan selisih dalam satuan waktu dan variabel double. Disini, digunakan bahwa t1 adalah waktu sekarang sedangkan t2 adalah waktu akses terakhir dari makan_enak.txt
 
 Untuk proses pembuatan file, dapat diselesaikan dengan proses yang mengeksekusi touch.
 
@@ -111,7 +109,7 @@ execv("/usr/bin/touch", param_touch);
 
 Terdapat 2 variabel array of char(string) dimana file_name adalah variabel yang menyimpan nama file yang akan dibuat. Pembuatan nama file, dilakukan dengan fungsi sprintf(built-in c) dimana variabel file_name akan menyimpan string makan_sehat#.txt dimana # akan direplace dengan sebuah variabel file yang telah dideklarasi di global. Sedangkan string yang lain, yaitu param_touch adalah sebuah parameter dimana command touch yang ada dimasukkan kedalam variabel ini, dan akan dimasukkan kedalam fungsi execv yang akan dieksekusi dengan direktori /usr/bin/touch. Setelah proses ini dijalankan, maka incrementkan variabel file tersebut. Lalu sleep selama 5 detik.
 
-### NOMOR 5
+# NOMOR 5
 
 Untuk nomor 5, penyelesaian dari masalah tersebut adalah membuat daemon yang bekerja di direktori "home/[user]/log". Pastinya sebelum melakukan eksekusi daemon ini, dipastikan untuk membuat folder log sebelumnya. Dalam proses daemon, kita akan mengambil tanggal pada saat daemon dijalankan untuk nama folder yang telah ditentukan formatnya yaitu "dd:MM:yyyy-hh:mm" sehingga kita dapatkan waktu dengan cara sebagai berikut:
 
