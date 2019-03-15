@@ -1,5 +1,77 @@
 # SoalShift_Modul2_E15
 
+# Nomor 1
+Untuk nomor 1 soal meminta untuk membuat merubah semua file yang
+berekstensi .png menjadi _grey.png. Di soal diberitahu bahwa file yang akan dirubah sangat banyak, tetapi tidak diberitahu apakah file tersebut diberikan secara sekaligus ataupun secara berkala, tetapi diasumsikan file diberikan secara berkala.
+
+Untuk soal 1 program utama dibagi menjadi 2, yang membaca file dan yang merubah file.
+
+untuk bagian yang membaca file digunakan library dirent. dirent akan membuka directory dan dijadikan working directory.
+```
+...
+directory = opendir(".");
+    if (directory) {
+        while ((dir = readdir(directory)) != NULL) {
+            filename = dir->d_name;
+...
+```
+
+variabel dir adalah struct dari dir yang dijadikan pointer untuk file yang sedang dibaca. Dari struct tersebut terdapat elemen nama yang dimasukkan ke variabel name. Setelah itu dicek apakah name berekstensi .png atau tidak. Jika iya, maka proses akan dilanjutkan
+```
+...
+if (!tmp || tmp == filename) {
+                continue;
+            }
+            if(strcmp(strrchr(filename,'.'),ext) == 0) {
+...
+```
+
+Pertama-tama direktori tujuan dimasukkan ke variabel folder. Setelah itu dari nama asli file akan diambil nama saja. Hal ini dilakukan dengan menggunakan [strncpy()](https://www.tutorialspoint.com/c_standard_library/c_function_strncpy.htm). Karena file yang dihandle hanyalah png, maka tiap file dipastikan 4 karakter terakhir adalah .png, maka yang diambil sepanjang length-4.
+
+Setelah itu _grey.png ditambahkan kebelakang variabel nama tanpa ext. Untuk memindahkan file ke direktori tujuan dapat digunakan [rename()](https://linux.die.net/man/3/rename)
+
+```
+strcpy(folder,"/home/catehulu/modul2/gambar/");
+                lenght = strlen(filename) - 4;
+                // printf("fname %s\nlen %d\n", filename,lenght);
+                strncpy(newname, filename, lenght);
+                // printf("new %s\n", newname);
+                strcat(newname, "_grey.png");
+                // printf("new grey %s\n", newname);
+                strcat(folder, newname);
+                // printf("dir %s\n", folder);
+                rename(filename,folder);
+                memset(newname, '\0', sizeof(newname));
+                memset(folder, '\0', sizeof(folder));
+```
+
+dan program tersebut dijadikan daemon, dan proses dilakukan setiap 5 detik.
+
+# Nomor 2
+
+Soal nomor 2 meminta untuk program C yang menghapus file "elen.ku" pada direktori "hatiku" jika owner dan dan groupnya "www-data". Sebelum dihapus, permission diganti menjadi 777
+
+Pertama-tama dicek dengan [stat()](https://link) id dari owner dan groupnya. Setelah itu dari library [pwd.h](https://link) dan [grp.h](https://link) terdapat struct yang dapat mereturn data dari id tersebut. Dari struct itu dicek namanya apakah "www-data".
+```
+...
+if(stat(file,&check) == 0){
+        owner = getpwuid(check.st_uid);
+        group = getgrgid(check.st_gid);
+        // printf("%s %s\n", user->pw_name, group->gr_name);
+        if(strcmp(owner->pw_name,group->gr_name) == 0 && strcmp(group->gr_name,name) == 0){
+            // printf("right");
+            // printf("%d\n",i);
+            chmod(file,i);
+            remove(file);
+        }
+    }
+...
+```
+
+permissionnya dirubah dengan chmod, tetapi agar permission dapat diganti maka file harus dijalankan sebagai sudo. 
+
+Karena dicek setiap 3 detik, maka didaemon disleep selama 3 detik
+
 ### NOMOR 4
 
 Untuk nomor 4, penyelesaian masalah ini adalah mengatur waktu akses terakhir, lalu mengecek apakah dalam 30 detik sebelumnya file tersebut terbuka atau tidak.
