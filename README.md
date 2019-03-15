@@ -72,7 +72,48 @@ permissionnya dirubah dengan chmod, tetapi agar permission dapat diganti maka fi
 
 Karena dicek setiap 3 detik, maka didaemon disleep selama 3 detik
 
-# NOMOR 4
+# Nomor 3
+
+Pertama hal yang harus dilakukan adalah mengekstrak file .zip dengan membuat process terlebih dahulu.
+
+```
+char *param_unzip[]={"unzip", "campur2.zip", NULL};
+execv("/usr/bin/unzip", param_unzip);
+```
+
+Kedua, membuat file bernama daftar.txt dengan command touch. Sebenarnya proses ini tidak bergantung pada proses ekstrak file .zip sehingga menggunakan wait atau tidak sama saja.
+
+```
+char *param_touch[]={"touch",  "daftar.txt", NULL};
+execv("/usr/bin/touch", param_touch);
+```
+
+Ketiga, menggunakan fungsi popen() dimana fungsi ini merupakan pipe dari hasil sebuah command ke dalam sebuah file pointer. Setelah itu, file pointer tersebut dibaca dengan bantuan variabel string. Untuk setiap barisnya, lakukan print ke dalam file daftar.txt(yang sebelumnya telah dibuka dengan fopen).
+
+```
+FILE *rd, *out;
+int MAX_CHAR = 50;
+char *result = malloc( 51 * sizeof(char) );
+out= fopen("daftar.txt", "w");
+rd = popen("ls campur2/*.txt | awk 'BEGIN{FS=\"/\"}{print $2}'", "r"); // Pipe C dengan command di kernel
+
+while(fgets(result, MAX_CHAR, rd)){
+    fprintf(out, "%s", result);
+}
+
+fclose(out);
+pclose(rd);
+
+```
+
+Terakhir, karena file daftar.txt harus dapat dibuka maka permission dari file daftar.txt haruslah diubah kedalam mode 666 yang artinya dapat dibaca dan juga ditulis.
+
+ ```
+char *param_chmod[]={"chmod", "666", "daftar.txt", NULL};
+execv("/bin/chmod", param_chmod);
+ ```
+
+# Nomor 4
 
 Untuk nomor 4, penyelesaian masalah ini adalah mengatur waktu akses terakhir, lalu mengecek apakah dalam 30 detik sebelumnya file tersebut terbuka atau tidak.
 
@@ -109,7 +150,7 @@ execv("/usr/bin/touch", param_touch);
 
 Terdapat 2 variabel array of char(string) dimana file_name adalah variabel yang menyimpan nama file yang akan dibuat. Pembuatan nama file, dilakukan dengan fungsi sprintf(built-in c) dimana variabel file_name akan menyimpan string makan_sehat#.txt dimana # akan direplace dengan sebuah variabel file yang telah dideklarasi di global. Sedangkan string yang lain, yaitu param_touch adalah sebuah parameter dimana command touch yang ada dimasukkan kedalam variabel ini, dan akan dimasukkan kedalam fungsi execv yang akan dieksekusi dengan direktori /usr/bin/touch. Setelah proses ini dijalankan, maka incrementkan variabel file tersebut. Lalu sleep selama 5 detik.
 
-# NOMOR 5
+# Nomor 5
 
 Untuk nomor 5, penyelesaian dari masalah tersebut adalah membuat daemon yang bekerja di direktori "home/[user]/log". Pastinya sebelum melakukan eksekusi daemon ini, dipastikan untuk membuat folder log sebelumnya. Dalam proses daemon, kita akan mengambil tanggal pada saat daemon dijalankan untuk nama folder yang telah ditentukan formatnya yaitu "dd:MM:yyyy-hh:mm" sehingga kita dapatkan waktu dengan cara sebagai berikut:
 
